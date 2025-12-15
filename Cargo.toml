@@ -9,7 +9,7 @@ readme = "README.md"
 authors = ["n00kii"]
 
 [dependencies]
-egui = { version = "0.31.1", default-features = false }
+egui = { version = "0.33.3", default-features = false }
 
 [dev-dependencies]
-eframe = "0.31.1"
+eframe = "0.33.3"
