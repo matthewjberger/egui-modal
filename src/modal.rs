@@ -476,7 +476,7 @@ impl Modal {
                 .interactable(true)
                 .fixed_pos(Pos2::ZERO)
                 .show(&self.ctx, |ui: &mut Ui| {
-                    let screen_rect = ui.ctx().input(|i| i.screen_rect());
+                    let screen_rect = ui.ctx().input(|i| i.content_rect());
                     let area_response = ui.allocate_response(screen_rect.size(), Sense::click());
                     // let current_focus = area_response.ctx.memory().focus().clone();
                     // let top_layer = area_response.ctx.memory().layer_ids().last();
@@ -567,7 +567,7 @@ impl Modal {
     pub fn dialog(&self) -> DialogBuilder {
         DialogBuilder {
             data: DialogData::default(),
-            modal_id: self.id.clone(),
+            modal_id: self.id,
             ctx: self.ctx.clone(),
         }
     }
@@ -582,18 +582,11 @@ impl Modal {
                 if let Some(title) = modal_data.title {
                     self.title(ui, title)
                 }
-                self.frame(ui, |ui| {
-                    if modal_data.body.is_none() {
-                        if let Some(icon) = modal_data.icon {
-                            self.icon(ui, icon)
-                        }
-                    } else if modal_data.icon.is_none() {
-                        if let Some(body) = modal_data.body {
-                            self.body(ui, body)
-                        }
-                    } else if modal_data.icon.is_some() && modal_data.icon.is_some() {
-                        self.body_and_icon(ui, modal_data.body.unwrap(), modal_data.icon.unwrap())
-                    }
+                self.frame(ui, |ui| match (modal_data.body, modal_data.icon) {
+                    (None, Some(icon)) => self.icon(ui, icon),
+                    (Some(body), None) => self.body(ui, body),
+                    (Some(body), Some(icon)) => self.body_and_icon(ui, body, icon),
+                    (None, None) => {}
                 });
                 self.buttons(ui, |ui| {
                     ui.with_layout(Layout::top_down_justified(Align::Center), |ui| {
